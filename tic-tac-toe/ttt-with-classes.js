@@ -168,7 +168,6 @@ class TTTGame {
 
   playOnce() {
     console.clear();
-    this.displayWelcomeMessage();
 
     while (true) {
       this.board.display();
@@ -189,11 +188,11 @@ class TTTGame {
 
   playMultiple() {
     console.clear();
-    this.displayWelcomeMessage();
     let replay = "y";
 
     while (replay === "y") {
       while (true) {
+        this.displayScore();
         this.board.display();
 
         this.humanMoves();
@@ -205,6 +204,7 @@ class TTTGame {
       }
       console.clear();
 
+      this.displayScore();
       this.board.display()
       this.displayResults();
       this.board = Board.reset();
@@ -215,7 +215,6 @@ class TTTGame {
 
   playMatch() {
     console.clear();
-    this.displayWelcomeMessage(true);
 
     while (this.human.wins < 3 && this.computer.wins < 3) {
       while (true) {
@@ -252,17 +251,51 @@ class TTTGame {
     this.displayGoodbyeMessage();
   }
 
-  displayWelcomeMessage(isMatch = false) {
+  selectGameMode() {
+    console.log("Enter the number to the corresponding game mode");
+    console.log("1) To play a single game");
+    console.log("2) To play as many games as you like");
+    console.log("3) To play a match. First one to 3 wins\n");
+    let gameMode = readline.question("Enter your choice here: ");
 
-    console.log("Welcome to Tic Tac Toe!");
-    console.log("Take a look at how the squares are numbered and make your choices accordingly");
-    if (isMatch) {
-      console.log("The first one to win 3 games is the ultimate winner");
+    while (!["1", "2", "3"].includes(gameMode)) {
+      console.clear();
+      console.log("1) To play a single game");
+      console.log("2) To play as many games as you like");
+      console.log("3) To play a match. First one to 3 wins\n");
+      gameMode = readline.question("Enter your choice here: ");
     }
-
-    this.board.displayNumberedSquares()
-    readline.question("Press enter when you are ready to play.");
     console.clear();
+    return gameMode;
+  }
+
+  play() {
+    this.displayWelcomeMessage();
+    let gameMode = this.selectGameMode();
+    this.displayPregame();
+
+    switch (gameMode) {
+      case "1":
+        this.playOnce();        
+        break;    
+      case "2":
+        this.playMultiple();
+        break;
+      case "3":
+        this.playMatch();
+        break;
+    } 
+  }
+
+  displayPregame() {
+    console.log("Take a look at how the squares are numbered and make your choices accordingly");
+    this.board.displayNumberedSquares();
+    readline.question("Press enter when you are ready to play.");
+  }
+
+  displayWelcomeMessage() {
+    console.clear();
+    console.log("Welcome to Tic Tac Toe!\n");
   }
 
   displayGoodbyeMessage() {
@@ -325,7 +358,7 @@ class TTTGame {
   computerMovesSmart() {
     if (this.potentialWinningRowFor(this.computer)) {
       this.computerTakeBestMove(this.computer);
-    } else if (this.potentialWinningRowFor(this.human)){
+    } else if (this.potentialWinningRowFor(this.human)) {
       this.computerTakeBestMove(this.human)
     } else {
       this.computerMovesRandom();
@@ -344,8 +377,8 @@ class TTTGame {
 
   potentialWinningRowFor(player) {
     return TTTGame.POSSIBLE_WINNING_ROWS.find(row => {
-        return this.board.countMarkerFor(player, row) === 2 && this.board.squareAvailable(row);
-      });      
+      return this.board.countMarkerFor(player, row) === 2 && this.board.squareAvailable(row);
+    });
   }
 
   isWinner(player) {
@@ -378,6 +411,4 @@ class TTTGame {
 
 
 let game = new TTTGame();
-game.playMatch();
-game.playOnce();
-game.playMultiple();
+game.play();
