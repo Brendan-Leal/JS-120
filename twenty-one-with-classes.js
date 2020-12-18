@@ -1,7 +1,6 @@
 const readline = require("readline-sync");
 const TWENTY_ONE = 21;
 
-
 class Deck {
   constructor() {
   }
@@ -80,7 +79,6 @@ class CardTable {
 
     console.log("\n\n\n___________________________");
     console.log("_______Players Cards_______\n");
-
     this.displayCards(player.hand, IS_HAND_HIDDEN, deck);
     console.log(`\nYou have: ${player.handTotal}`);
     console.log("___________________________");
@@ -150,7 +148,6 @@ class CardTable {
         process.stdout.write(line2.padEnd(12, " "));
         process.stdout.write("|       |");
       }
-
       console.log("");
     } else {
       for (let i = 0; i < cardCount; i++) {
@@ -174,7 +171,6 @@ class CardTable {
         process.stdout.write("|       |");
       }
       console.log("");
-
     } else {
       for (let i = 0; i < cardCount; i++) {
         let line4 = `|${cards[i][0].padStart(7, " ")}|`;
@@ -195,11 +191,6 @@ class Player {
     this.move;
   }
 
-  reset() {
-    this.move = Player.HIT;
-    this.handTotal = 0;
-  }
-
   setPlayersMove() {
     let choice = readline.question("Hit or stay (h/s): ").trim().toLowerCase()[0];
 
@@ -207,6 +198,11 @@ class Player {
       choice = readline.question("Hit or stay (h/s): ").toLowerCase()[0];
     }
     this.move = choice;
+  }
+
+  reset() {
+    this.move = Player.HIT;
+    this.handTotal = 0;
   }
 }
 
@@ -216,11 +212,6 @@ class Dealer extends Player {
   constructor() {
     super();
     this.isHandHidden = true;
-    this.deck = new Deck();
-  }
-  reset() {
-    this.isHandHidden = true;
-    this.handTotal = 0;
     this.deck = new Deck();
   }
 
@@ -236,6 +227,12 @@ class Dealer extends Player {
 
   dealOneCard() {
     return this.deck.cards.splice(0, 1)[0];
+  }
+
+  reset() {
+    this.isHandHidden = true;
+    this.handTotal = 0;
+    this.deck = new Deck();
   }
 }
 
@@ -306,6 +303,7 @@ class TwentyOneGame {
     } else if (this.player.handTotal > this.dealer.handTotal) {
       console.log("You win!");
     }
+
     readline.question("\nPress enter to play the next hand");
   }
 
@@ -317,9 +315,9 @@ class TwentyOneGame {
     return player.handTotal > TWENTY_ONE;
   }
 
-
   playersTurnIsOver() {
-    return this.player.move === Player.STAY || this.isBlackjack(this.player) ||
+    return this.player.move === Player.STAY ||
+      this.isBlackjack(this.player) ||
       this.isBustingHand(this.player);
   }
 
@@ -362,67 +360,3 @@ class TwentyOneGame {
 
 let game = new TwentyOneGame();
 game.play();
-
-
-
-
-
-//============================================================================================================
-//                                       Original Code Below
-
-
-// let playAgain;
-
-// do {
-//   let deck = initializeDeckOfCards();
-//   shuffle(deck);
-
-//   let playersHand = initializeHand(deck);
-//   let dealersHand = initializeHand(deck);
-//   let showDealersHand = false;
-//   let playersChoice;
-
-//   do {
-
-//     displayCardTable(playersHand, dealersHand, showDealersHand);
-//     if (isBlackjack(playersHand)) break;
-
-//     playersChoice = setPlayersChoice();
-
-//     if (playersChoice === "h") {
-//       playersHand.push(dealOneCard(deck));
-//     }
-
-//   } while (playersChoice === "h" &&
-//     !isBustingHand(playersHand) &&
-//     !isBlackjack(playersHand));
-
-//   showDealersHand = true;
-
-//   displayCardTable(playersHand, dealersHand, showDealersHand);
-
-//   let dealersTotal = calculateHandTotal(dealersHand);
-
-//   while (dealersTotal < 17) {
-//     if (isBustingHand(playersHand)) break;
-
-//     dealersHand.push(dealOneCard(deck));
-//     dealersTotal = calculateHandTotal(dealersHand);
-//   }
-
-//   displayWinner(playersHand, dealersHand, showDealersHand);
-
-//   playAgain = setPlayAgain();
-// } while (playAgain === "y");
-
-
-
-// function setPlayAgain() {
-//   let choice = readline.question("Play another hand (y/n)?");
-
-//   while (choice === "" || !["y", "n"].includes(choice[0].toLowerCase())) {
-//     choice = readline.question("Play another hand (y/n)?");
-//   }
-//   return choice[0].toLowerCase();
-// }
-
