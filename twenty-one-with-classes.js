@@ -77,8 +77,9 @@ class CardTable {
     }
     console.log("___________________________");
 
-    console.log("\n\n\n___________________________");
-    console.log("_______Players Cards_______\n");
+    console.log("\n\n\n\n\n___________________________");
+    console.log("_______Players Cards_______");
+    console.log(`Your Money: $${player.money}\n`);
     this.displayCards(player.hand, IS_HAND_HIDDEN, deck);
     console.log(`\nYou have: ${player.handTotal}`);
     console.log("___________________________");
@@ -184,11 +185,14 @@ class CardTable {
 class Player {
   static HIT = "h";
   static STAY = "s";
+  static BROKE = 0;
+  static MAX_WINNING_AMT = 10;
 
   constructor() {
     this.hand;
     this.handTotal;
     this.move;
+    this.money = 5;
   }
 
   setPlayersMove() {
@@ -220,7 +224,7 @@ class Dealer extends Player {
     let startingHand = [];
 
     for (let cardsDealt = 1; cardsDealt <= TWO_CARDS; cardsDealt++) {
-      startingHand.push(this.deck.cards.splice(0, 1)[0]);
+      startingHand.push(this.dealOneCard());
     }
     return startingHand;
   }
@@ -246,7 +250,7 @@ class TwentyOneGame {
   play() {
     this.displayWelcome();
 
-    while (true) {
+    while (this.player.money > Player.BROKE && this.player.money < Player.MAX_WINNING_AMT) {
       this.dealer.deck.shuffle();
       this.player.hand = this.dealer.startingDeal();
       this.dealer.hand = this.dealer.startingDeal();
@@ -274,14 +278,15 @@ class TwentyOneGame {
         this.calculateHandTotal(this.dealer);
       }
 
+      this.updateMoney();
       this.dealer.isHandHidden = false;
       this.cardTable.display(this.player, this.dealer, this.dealer.deck);
 
       this.displayWinner();
+
       this.player.reset();
       this.dealer.reset();
     }
-
     this.displayGoodbye();
   }
 
@@ -304,7 +309,25 @@ class TwentyOneGame {
       console.log("You win!");
     }
 
-    readline.question("\nPress enter to play the next hand");
+    if (this.player.money > Player.BROKE && this.player.money < Player.MAX_WINNING_AMT) {
+      readline.question("\nPress enter to play the next hand");
+    }
+  }
+
+  updateMoney() {
+    if (this.isBlackjack(this.player)) {
+      this.player.money += 1;
+    } else if (this.isBustingHand(this.dealer) && this.player.handTotal <= TWENTY_ONE) {
+      this.player.money += 1;
+    } else if (this.isBustingHand(this.player) && this.dealer.handTotal <= TWENTY_ONE) {
+      this.player.money -= 1;
+    } else if (this.isBustingHand(this.player) && this.isBustingHand(this.dealer)) {
+      this.player.money -= 1;
+    } else if (this.dealer.handTotal > this.player.handTotal) {
+      this.player.money -= 1;
+    } else if (this.player.handTotal > this.dealer.handTotal) {
+      this.player.money += 1;
+    }
   }
 
   isBlackjack(player) {
@@ -317,7 +340,6 @@ class TwentyOneGame {
 
   playersTurnIsOver() {
     return this.player.move === Player.STAY ||
-      this.isBlackjack(this.player) ||
       this.isBustingHand(this.player);
   }
 
@@ -350,10 +372,20 @@ class TwentyOneGame {
   }
 
   displayWelcome() {
-    console.log("Welcome to Twenty one.");
+    console.clear();
+    console.log("Welcome to Twenty one");
+    console.log("Your starting money is $5");
+    console.log("The game ends if you beat the house and double your starting money");
+    console.log("or you go broke\n");
+    readline.question("Press enter to start the game")
   }
 
   displayGoodbye() {
+    if (this.player.money === Player.BROKE) {
+      console.log("You went broke");
+    } else if (this.player.money === Player.MAX_WINNING_AMT) {
+      console.log("Congrats you beat the house!");
+    }
     console.log("Thanks for playing!");
   }
 }
