@@ -59,7 +59,7 @@ class Deck {
       return "error";
     }
   }
-};
+}
 
 class CardTable {
   constructor() {
@@ -377,7 +377,7 @@ class TwentyOneGame {
     console.log("Your starting money is $5");
     console.log("The game ends if you beat the house and double your starting money");
     console.log("or you go broke\n");
-    readline.question("Press enter to start the game")
+    readline.question("Press enter to start the game");
   }
 
   displayGoodbye() {
